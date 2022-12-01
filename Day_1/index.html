@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+</head>
+<body>
+
+<script>
+
+const input = 
+`
+1000
+2000
+3000
+
+4000
+
+5000
+6000
+
+7000
+8000
+9000
+
+10000
+`;
+
+    function whichElfHasMostCalories(elves) {
+        let elfIndexWithMostCalories = 0;
+        let mostCalories = 0;
+        
+        for (let e = 0; e < elves.length; e++) {
+            let tempSum = 0;
+
+            for (let i = 0; i < elves[e].length; i++) {
+                tempSum = tempSum + elves[e][i];
+            }
+            // What happens if two or more elves have an equal amount? Leaving this out for now...
+            if (tempSum >= mostCalories) {
+                mostCalories = tempSum;
+                elfIndexWithMostCalories = e;
+            }
+        }
+        return { index: elfIndexWithMostCalories, calories: mostCalories }
+    }
+
+    function topThreeElvesCalories(elves) {
+        tmpElves = elves.map((x) => x); // Might be good practice to copy the array...
+        let sum = 0;
+
+        let topElves = [];
+
+        for (let i = 0; i < 3; i++) {
+            let { index, calories } = whichElfHasMostCalories(tmpElves);
+            sum = sum + calories;
+            topElves.push(tmpElves.splice(index, 1));
+        }
+
+        return sum;
+    }
+
+    function initializeElves(input) {
+        let splitInput = input.toString().split("\n\n");
+        let elves = [];
+
+        splitInput.map(value => {
+            let split = value.split('\n');
+            let elf = [];
+
+            for (let i = 0; i < split.length; i++) {
+                let toInt = parseInt(split[i]);
+
+                // Check for empty entries
+                if (Number.isNaN(toInt)) {
+                    continue;
+                } else {
+                    elf.push(toInt);
+                }
+            }
+            elves.push(elf);
+        });
+
+        return elves;
+    }
+
+    // Initialize elves from input
+    let elves = initializeElves(input);
+
+    // First exercise: Find the elf!
+    let result = whichElfHasMostCalories(elves);
+
+    const { index, calories } = result;
+    console.log(`Elf number ${index + 1} is carrying ${calories} calories, which is the most of any elf!`);
+    
+    // Second exercise: Find the top three elves' total calories
+    const sum = topThreeElvesCalories(elves);
+    console.log(`The top three elves carry together ${sum} calories!`);
+
+</script>
+  
+</body>
+</html>
