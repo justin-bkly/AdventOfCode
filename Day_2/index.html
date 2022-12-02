@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+</head>
+<body>
+
+<script>
+
+/*
+A Y
+B X
+C Z
+
+Game logic:
+B > A,
+C > B
+A > C
+
+or...
+
+Y > A
+Z > B
+X > C
+
+or...
+
+Y(2) > A(1)
+Z(3) > B(2) 
+X(1) > C(3)
+
+myHand = Y = 2;
+opponent = A = 1;
+
+if (myHand == 1 && opponent == 3)
+    // I win (rock vs scissors)
+if (myHand == 3 && opponent == 1)
+    // Opponent wins
+else if (myHand > opponent) {
+    // I win
+} 
+else if (opponent > myHand) {
+    // opponent wins
+}
+else if (opponent == myHand {
+    // draw
+}
+
+*/
+
+const input = 
+`
+A Y
+B X
+C Z
+`;
+
+const gameScore = {
+    a: 1, // rock
+    b: 2, // paper
+    c: 3, // scissors 
+    x: 1, // rock
+    y: 2, // paper
+    z: 3  // scissors
+}
+
+const winTypes = {
+    loss: 0,
+    draw: 3,
+    win: 6
+}
+
+let splitInput = input.toString().split("\n");
+let myTotalScore = 0;
+let opponentTotalScore = 0;
+
+for (let i = 0; i < splitInput.length; i++) {
+    if (!splitInput[i]) {
+        continue;
+    }
+    let s = splitInput[i].split(" ");
+    let myLetter = convertLetter(s[1]);
+    let opponentLetter = convertLetter(s[0]);
+    
+    let result = whoWins(myLetter, opponentLetter);
+    
+    myTotalScore = myTotalScore + result[0];
+    opponentTotalScore = opponentTotalScore + result[1];
+}
+
+// Part 1: Find my total score
+console.log(`I have ${myTotalScore}`);
+
+function whoWins(me, opponent) {
+    myPoints = 0;
+    opponentPoints = 0;
+
+    if (me == 1 && opponent == 3) {
+        myPoints = winTypes['win'];
+        opponentPoints = winTypes ['loss'];
+    } else if (me == 3 && opponent == 1) {
+        myPoints = winTypes['loss'];
+        opponentPoints = winTypes ['win'];
+    } else if (me > opponent) {
+        myPoints = winTypes['win'];
+        opponentPoints = winTypes ['loss'];
+    } else if (me < opponent) {
+        myPoints = winTypes['loss'];
+        opponentPoints = winTypes ['win'];
+    } else if (me == opponent) {
+        myPoints = winTypes['draw'];
+        opponentPoints = winTypes ['draw'];
+    } else {
+        console.log("Uncaught case!");
+    }
+
+    return [ myPoints + me, opponentPoints + opponent ]
+}
+
+function convertLetter(letter) {
+    let l = letter.toLowerCase();
+    return gameScore[l];
+}
+
+
+/*
+const result1 = whoWins(1, 3);
+console.log(`I had rock, opponent scissors: ${result1}`);
+
+const result2 = whoWins(2, 3);
+console.log(`I had paper, opponent scissors: ${result2}`);
+
+const result3 = whoWins(3, 2);
+console.log(`I had scissors, opponent paper: ${result3}`);
+
+const result4 = whoWins(3, 3);
+console.log(`I had scissors, opponent scissors: ${result4}`);
+
+const result5 = whoWins(1, 2);
+console.log(`I had rock, opponent paper: ${result5}`);
+
+const result6 = whoWins(3, 1);
+console.log(`I had scissors, opponent rock: ${result5}`);
+*/
+
+</script>
+  
+</body>
+</html>
