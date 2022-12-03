@@ -1,4 +1,5 @@
 const fs = require('fs');
+const { format } = require('path');
 const rawRucksacks = fs.readFileSync('input.txt').toString().split("\n");
 
 const alphabet = {};
@@ -9,7 +10,6 @@ for (let i = 0; i <= 25; i++) {
     alphabet[lower] = i+1+26;
     alphabet[upper] = i+1;
 }
-
 
 // Part 1
 const ruckSacks = [];
@@ -35,7 +35,6 @@ const part1 = () => {
             let letter = findMatch(l, sack[1]);
             if (letter) {
                 sum = sum + alphabet[letter];
-                // console.log(letter, alphabet[letter]);
                 break;
             }
         }
@@ -43,27 +42,48 @@ const part1 = () => {
     return sum;
 }
 
-let part1Result = part1();
-console.log(`The priority score for Part 1 is ${part1Result}`);
+let prioScorePart1 = part1();
+console.log(`Part 1: The priority sum is ${prioScorePart1}`);
 
-// Look through first rucksack, pick a letter
-// if letter found in second rucksack, then look in third
-// if all three found, break
-// if not found in third, scrap tmp letter
+// Part 2
+const ruckSackGroups = [];
+let prioScorePart2 = 0;
 
-const part2 = () => {
-    let sum = 0;
-    for (let sack of ruckSacks) {
-        for (let l of sack[0]) {
+let count = 0;
+let tmp = [];
+while (count < rawRucksacks.length) {
+    if (count % 3 == 0) { tmp = [] }
+    if (count % 3 == 2) { ruckSackGroups.push(tmp)}
+    tmp.push(rawRucksacks[count]);
+    count++;
+}
 
+const searchSacks = (group) => {
+    let first = group[0];
+    let second = group[1];
+    let third = group[2];
+
+    for (let a in first) {
+        for (let b in second) {
+            if (first[a] == second[b]) {
+                let c = searchThird(first[a], third);
+                if (c) { return c; }
+            }
         }
     }
 }
 
-const ruckSackGroups = [];
-
-for (let i = 0; i < rawRucksacks.length; i++) {
-    console.log(i % 3);
+const searchThird = (letter, sack) => {
+    for (let c in sack) {
+        if (sack[c] == letter) {
+            return sack[c];
+        }
+    }
+    return 0;
 }
 
+for (let group of ruckSackGroups) {
+    prioScorePart2 = prioScorePart2 + alphabet[searchSacks(group)];
+}
 
+console.log(`Part 2: The priority sum is ${prioScorePart2}`);
