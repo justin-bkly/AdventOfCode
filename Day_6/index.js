@@ -8,30 +8,35 @@ const areLettersUnique = (input) => {
         let rest = input.slice(i+1);
         found = rest.includes(toFind);
 
-        if (found) { return true }
+        if (found) { return false }
     }
-    return false;
+    return true;
 }
 
-let buffer = '';
-let subset = '';
-let bufIndex = 0;
-let strLength = 14;
-
-for (let letter of raw) {
-    buffer = buffer + letter;
-    bufIndex = bufIndex + 1;
-
-    if (buffer.length < strLength) {
-        continue;
-    } else {
-        subset = buffer.substring(buffer.length-strLength, buffer.length);
-        let match = areLettersUnique(subset);
-        if (!match) {
-            // console.log('----found', bufIndex);
-            break;
+const findMarker = (strLength) => {
+    let buffer = '';
+    let subset = '';
+    let buffIndex = 0;
+    
+    // Go letter by letter and put a series of letters into a temp buffer to check if all letters in the buffer are unique
+    for (let letter of raw) {
+        buffer = buffer + letter;
+        buffIndex = buffIndex + 1;
+    
+        if (buffer.length < strLength) {
+            continue;
+        } else {
+            subset = buffer.substring(buffer.length-strLength, buffer.length);
+            let match = areLettersUnique(subset);
+            if (match) { return buffIndex; }
         }
     }
+    return buffIndex;
 }
 
-console.log(bufIndex)
+// Results
+part1 = findMarker(4);
+part2 = findMarker(14);
+
+console.log(`Part 1: The index of the marker is ${part1}`);
+console.log(`Part 2: The index of the marker is ${part2}`);
