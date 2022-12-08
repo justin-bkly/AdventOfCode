@@ -98,3 +98,37 @@ const part1Directories = findDirectoriesOfSize(tree, 100000, directoryTracker);
 const part1Result = sumResults(part1Directories);
 
 console.log(`Part 1: the sum of all directories under 100000 is ${part1Result}`);
+
+// Part 2
+const totalSpace = 70000000;
+const requiredSpace = 30000000;
+const usedSpace = tree.size;
+let availableSpace = totalSpace - usedSpace;
+let spaceNeeded = requiredSpace - availableSpace;
+
+const dirOptions = [tree.size]; // To make sure this is an option!
+
+const findDirToDelete = (tree, dirOptions) => {
+    let allFilesInDir = Object.keys(tree);
+
+    for (let file of allFilesInDir) {
+        if (tree[file].type === "dir") {
+            let fileSize = tree[file].size;
+
+            if (fileSize >= spaceNeeded) {
+                dirOptions.push(fileSize);
+            }
+
+            findDirToDelete(tree[file], dirOptions);
+        }
+    }
+
+    return dirOptions;
+}
+
+const sortArrByNum = (a, b) => {
+    return a - b;
+}
+
+const part2Directories = findDirToDelete(tree, dirOptions).sort(sortArrByNum);
+console.log(`Part 2: The directory to delete is ${part2Directories[0]} in size`)
