@@ -1,8 +1,5 @@
-const { groupEnd } = require('console');
 const fs = require('fs');
 const raw = fs.readFileSync('input.txt').toString();
-
-console.log(raw);
 
 const splitRaw = raw.split("\n");
 const grid = [];
@@ -72,8 +69,72 @@ for (let r = 0; r < grid.length; r++) {
     }
 }
 
-console.log(grid);
-console.log(visibleTrees);
-console.log(`Number of visible trees ${numVisibleTrees}`)
+// Part 1
+console.log(`Part 1: Number of visible trees ${numVisibleTrees}`)
+
+// Part 2
+const checkSceneLeft = (current, row, col) => {
+    if (col == 0) { return 0 }
+    let steps = 0;
+    for (let i = col - 1; i >= 0; i--) {
+        steps++;
+        if (grid[row][i] >= current) { return steps }
+    }
+    return col;
+}
+
+const checkSceneRight = (current, row, col) => {
+    if (col >= grid[row].length) { return 0 }
+    let steps = 0;
+    for (let j = col + 1; j < grid[row].length; j++) {
+        steps++;
+        if (grid[row][j] >= current) { return steps }
+    }
+    return grid[row].length - 1 - col;
+}
+
+const checkSceneUp = (current, row, col) => {
+    if (row == 0) { return 0 }
+    let steps = 0;
+    for (let j = row - 1; j >= 0; j--) {
+        steps++;
+        if (grid[j][col] >= current) { return steps }
+    }
+    return row;
+}
+
+const checkSceneDown = (current, row, col) => {
+    if (row >= grid.length) { return 0 }
+    let steps = 0;
+    for (let j = row + 1; j < grid.length; j++) {
+        steps++;
+        if (grid[j][col] >= current) { return steps }
+    }
+    return grid.length - 1 - row;
+}
+
+let sceneryScores = [];
+
+for (let r = 0; r < grid.length; r++) {
+    for (let c = 0; c < grid[r].length; c++) {
+        if ((r == 0) || (r == grid.length - 1) || (c == 0) || (c == grid[r].length - 1)) {
+            continue;
+        }
+        let left = checkSceneLeft(grid[r][c], r, c);
+        let right = checkSceneRight(grid[r][c], r, c);
+        let up = checkSceneUp(grid[r][c], r, c);
+        let down = checkSceneDown(grid[r][c], r, c);
+
+        let score = left * right * up * down;
+        sceneryScores.push(score);
+    }
+}
+
+let highestScenicScore = 0;
+for (let score of sceneryScores) {
+    if (highestScenicScore < score) { highestScenicScore = score }
+}
+
+console.log(`Part 2: The highest scenic score is ${highestScenicScore}`);
 
 
