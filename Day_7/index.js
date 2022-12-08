@@ -27,40 +27,13 @@ $ ls
 7214296 k
 */
 
-const checkDir = (input) => {
-    console.log('--- checkdir');
-}
-
-// const findParent = (obj, indexToFind) {
-//     // get keys of object
-//     // loop through to see if indexToFind matches a key
-//     // if so, return, it is the parent
-//     // otherwise, look through to see if there are children
-//     // then do the same... needs to be recursive function.
-// }
-
 const buildTree = (input) => {
     console.log(input);
 
-    /*
-    {
-        name
-        type
-        size
-    }
-    */
-
-    // look at a line
-    // if the line contains cd, it is a directory, so make an object and append to output
-    // skip lines with '$ ls'
-    // look through each line until hitting another 'cd'
-    // if a line contains 'dir' then make an object of type dir, otherwise a file
-    // cd.. means close out array and append dir array to parent
-
     let tree = {};
+    tree.size = 0;
     let treeStack = [tree];
     let active = tree;
-    let activeIndex = '';
 
     for (let line of input) {
         if (line.includes("cd /")) { continue }
@@ -68,15 +41,24 @@ const buildTree = (input) => {
         console.log(line);
 
         let r = line.split(" ");
-        console.log(r);
  
-        if (r[2] === "..") { // If change up dir
-            console.log('.....')
+        if (r[2] === "..") {
             treeStack.pop();
             active = treeStack[treeStack.length-1];
-            // active = 
+
+            let allFilesInDir = Object.keys(active);
+            let totalFileSizeOfDir = 0;
+
+            for (let file of allFilesInDir) {
+                if (file === "size") {
+                    continue;
+                }
+                totalFileSizeOfDir = totalFileSizeOfDir + active[file].size;
+            }
+
+            active.size = totalFileSizeOfDir;
             continue;
-        } else if ((r[1] === "cd") && (r[2] !== "..")) { // If change into dir
+        } else if ((r[1] === "cd") && (r[2] !== "..")) {
             let s = line.split(" ");
             active = active[s[2]];
             treeStack.push(active);
@@ -85,22 +67,36 @@ const buildTree = (input) => {
 
             if (line.includes("dir")) {
                 let dir = {};
-                dir.name = split[1];
-                active[dir.name] = dir;
+                dir.size = 0;
+                active[split[1]] = dir;
             } else {
                 let tmp = {};
                 tmp.size = parseInt(split[0]);
                 tmp.type = "file";
                 tmp.name = split[1];
                 active[tmp.name] = tmp;
+                active.size = active.size + tmp.size;
             }
         }
 
     }
-    console.log('---- final tree')
-    console.log(tree);
+
+    // Loop over top level to get total size of tree
+    let allFilesInTree = Object.keys(tree);
+    let totalFileSizeOfTree = 0;
+
+    for (let file of allFilesInTree) {
+        if (file === "size") {
+            continue;
+        }
+        totalFileSizeOfTree = totalFileSizeOfTree + tree[file].size;
+    }
+
+    tree.size = totalFileSizeOfTree;
+
+    return tree;
 }
 
 
 const tree = buildTree(raw);
-// console.log(tree);
+console.log(tree);
