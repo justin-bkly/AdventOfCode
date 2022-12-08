@@ -1,6 +1,6 @@
 const { groupEnd } = require('console');
 const fs = require('fs');
-const raw = fs.readFileSync('testinput.txt').toString();
+const raw = fs.readFileSync('input.txt').toString();
 
 console.log(raw);
 
