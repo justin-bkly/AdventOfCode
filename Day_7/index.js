@@ -1,9 +1,10 @@
 const fs = require('fs');
-const raw = fs.readFileSync('testinput.txt').toString().split("\n");
+const raw = fs.readFileSync('input.txt').toString().split("\n");
 
 const buildTree = (input) => {
     let tree = {};
     tree.size = 0;
+    tree.type = "dir";
     let treeStack = [tree];
     let active = tree;
 
@@ -21,7 +22,7 @@ const buildTree = (input) => {
             let totalFileSizeOfDir = 0;
 
             for (let file of allFilesInDir) {
-                if (file === "size") {
+                if (file === "size" || file === "type" || file === "name") {
                     continue;
                 }
                 totalFileSizeOfDir = totalFileSizeOfDir + active[file].size;
@@ -36,6 +37,8 @@ const buildTree = (input) => {
             if (line.includes("dir")) {
                 let dir = {};
                 dir.size = 0;
+                dir.type = "dir";
+                dir.name = splitLine[1];
                 active[splitLine[1]] = dir;
             } else {
                 let tmp = {};
@@ -53,7 +56,7 @@ const buildTree = (input) => {
     let totalFileSizeOfTree = 0;
 
     for (let file of allFilesInTree) {
-        if (file === "size") {
+        if (file === "size" || file === "type" || file === "name") {
             continue;
         }
         totalFileSizeOfTree = totalFileSizeOfTree + tree[file].size;
@@ -64,6 +67,34 @@ const buildTree = (input) => {
     return tree;
 }
 
+const findDirectoriesOfSize = (tree, sizeToFind, results) => {
+    let allFilesInDir = Object.keys(tree);
+
+    for (let file of allFilesInDir) {
+        if (tree[file].type === "dir") {
+            if (tree[file].size <= sizeToFind) {
+                results.push(tree[file].size);
+            }
+            findDirectoriesOfSize(tree[file], sizeToFind, results);
+        }
+    }
+
+    return results;
+}
+
+const sumResults = (results) => {
+    let sum = 0;
+    for (let res of results) {
+        sum = sum + res;
+    }
+    return sum;
+}
 
 const tree = buildTree(raw);
-console.log(tree);
+
+// Part 1
+let directoryTracker = [];
+const part1Directories = findDirectoriesOfSize(tree, 100000, directoryTracker);
+const part1Result = sumResults(part1Directories);
+
+console.log(`Part 1: the sum of all directories under 100000 is ${part1Result}`);
