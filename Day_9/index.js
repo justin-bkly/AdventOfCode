@@ -1,5 +1,5 @@
 const fs = require('fs');
-const raw = fs.readFileSync('testinput.txt').toString().split("\n");
+const raw = fs.readFileSync('input.txt').toString().split("\n");
 
 const instructions = [];
 
@@ -12,14 +12,14 @@ for (let row of raw) {
 let knots = [
     {x: 0, y: 0},
     {x: 0, y: 0},
-    // {x: 0, y: 0},
-    // {x: 0, y: 0},
-    // {x: 0, y: 0},
-    // {x: 0, y: 0},
-    // {x: 0, y: 0},
-    // {x: 0, y: 0},
-    // {x: 0, y: 0},
-    // {x: 0, y: 0},
+    {x: 0, y: 0},
+    {x: 0, y: 0},
+    {x: 0, y: 0},
+    {x: 0, y: 0},
+    {x: 0, y: 0},
+    {x: 0, y: 0},
+    {x: 0, y: 0},
+    {x: 0, y: 0},
 ];
 
 let tailRoute = [[0,0]];
@@ -37,21 +37,37 @@ const checkForDuplicates = (x, y, knotId) => {
 }
 
 const moveTail = (head, tail, knotId) => {
-    if ((head.x - tail.x) > 1) { // Move right
+    let tx = head.x - tail.x;
+    let ty = head.y - tail.y;
+
+    if (Math.hypot(tx, ty) > 2) { // Diagonal
+        tail.x = tail.x + Math.sign(tx);
+        tail.y = tail.y + Math.sign(ty);
+
+        checkForDuplicates(tail.x, tail.y, knotId);
+
+    } else if ((head.x - tail.x) > 1) { // Move right
         tail.x = tail.x + 1;
         tail.y = head.y;
+
         checkForDuplicates(tail.x, tail.y, knotId);
+
     } else if ((head.x - tail.x) < -1) { // Move left
         tail.x = tail.x - 1;
-        tail.y = head.y;
+        tail.y = head.y;   
+
         checkForDuplicates(tail.x, tail.y, knotId);
+
     } else if ((head.y - tail.y) > 1) { // Move up
         tail.y = tail.y + 1;
         tail.x = head.x;
+
         checkForDuplicates(tail.x, tail.y, knotId);
+
     } else if ((head.y - tail.y) < -1) { // Move down
         tail.y = tail.y - 1;
         tail.x = head.x;
+
         checkForDuplicates(tail.x, tail.y, knotId);
     }
 }
@@ -59,6 +75,7 @@ const moveTail = (head, tail, knotId) => {
 const stepKnotsLeft = (startX, newX) => {
     for (let s = startX - 1; s >= newX; s--) {
         knots[0].x = s;
+
         for (let k = 0; k < knots.length - 1; k++) {
             moveTail(knots[k], knots[k+1], k);
         }
@@ -164,13 +181,12 @@ for (let instruction of instructions) {
         newY = y - instruction[1];
         stepKnotsDown(y, newY);
     }
-
-    drawGrid(knots);
 }
 
-// Part 1
-console.log(`Part 1: The tail has hit ${tailRoute.length} unique locations`);
 
-// See full tail
-drawGrid(tailRoute);
 
+// See full tail - uncomment only with testInput, will crash otherwise due to grid size
+// drawGrid(tailRoute);
+
+// To get results for Part 1 or 2, then comment out all but first 2 knots in knots array, and change input
+console.log(`The tail has hit ${tailRoute.length} unique locations`);
