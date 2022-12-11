@@ -9,20 +9,13 @@ for (let row of raw) {
     instructions.push([split[0], num]);
 }
 
-let knots = [
-    {x: 0, y: 0},
-    {x: 0, y: 0},
-    {x: 0, y: 0},
-    {x: 0, y: 0},
-    {x: 0, y: 0},
-    {x: 0, y: 0},
-    {x: 0, y: 0},
-    {x: 0, y: 0},
-    {x: 0, y: 0},
-    {x: 0, y: 0},
-];
-
-let tailRoute = [[0,0]];
+const makeKnots = (numKnots) => {
+    let knots = [];
+    for (let num = 0; num < numKnots; num++) {
+        knots.push({x: 0, y: 0});
+    }
+    return knots;
+}
 
 const checkForDuplicates = (x, y, knotId) => {
     for (let pos of tailRoute) {
@@ -36,39 +29,27 @@ const checkForDuplicates = (x, y, knotId) => {
     }
 }
 
+const move = (newX, newY, tail, knotId) => {
+    tail.x = newX;
+    tail.y = newY;
+
+    checkForDuplicates(tail.x, tail.y, knotId);
+}
+
 const moveTail = (head, tail, knotId) => {
     let tx = head.x - tail.x;
     let ty = head.y - tail.y;
 
-    if (Math.hypot(tx, ty) > 2) { // Diagonal
-        tail.x = tail.x + Math.sign(tx);
-        tail.y = tail.y + Math.sign(ty);
-
-        checkForDuplicates(tail.x, tail.y, knotId);
-
+    if (Math.hypot(tx, ty) > 2) { // Move diagonal
+        move(tail.x + Math.sign(tx), tail.y + Math.sign(ty), tail, knotId);
     } else if ((head.x - tail.x) > 1) { // Move right
-        tail.x = tail.x + 1;
-        tail.y = head.y;
-
-        checkForDuplicates(tail.x, tail.y, knotId);
-
+        move(tail.x + 1, head.y, tail, knotId);
     } else if ((head.x - tail.x) < -1) { // Move left
-        tail.x = tail.x - 1;
-        tail.y = head.y;   
-
-        checkForDuplicates(tail.x, tail.y, knotId);
-
+        move(tail.x - 1, head.y, tail, knotId);
     } else if ((head.y - tail.y) > 1) { // Move up
-        tail.y = tail.y + 1;
-        tail.x = head.x;
-
-        checkForDuplicates(tail.x, tail.y, knotId);
-
+        move(head.x, tail.y + 1, tail, knotId);
     } else if ((head.y - tail.y) < -1) { // Move down
-        tail.y = tail.y - 1;
-        tail.x = head.x;
-
-        checkForDuplicates(tail.x, tail.y, knotId);
+        move(head.x, tail.y - 1, tail, knotId);
     }
 }
 
@@ -162,31 +143,39 @@ const drawGrid = (points) => {
     console.log(grid);
 }
 
-for (let instruction of instructions) {
-    let x = knots[0].x;
-    let y = knots[0].y;
-    let newX = 0;
-    let newY = 0;
-
-    if (instruction[0] === "R") {
-        newX = x + instruction[1];
-        stepKnotsRight(x, newX);
-    } else if (instruction[0] === "L") {
-        newX = x - instruction[1];
-        stepKnotsLeft(x, newX);
-    } else if (instruction[0] === "U") {
-        newY = y + instruction[1];
-        stepKnotsUp(y, newY);
-    } else if (instruction[0] === "D") {
-        newY = y - instruction[1];
-        stepKnotsDown(y, newY);
+const findRoute = (instructions) => {
+    for (let instruction of instructions) {
+        let x = knots[0].x;
+        let y = knots[0].y;
+        let newX = 0;
+        let newY = 0;
+    
+        if (instruction[0] === "R") {
+            newX = x + instruction[1];
+            stepKnotsRight(x, newX);
+        } else if (instruction[0] === "L") {
+            newX = x - instruction[1];
+            stepKnotsLeft(x, newX);
+        } else if (instruction[0] === "U") {
+            newY = y + instruction[1];
+            stepKnotsUp(y, newY);
+        } else if (instruction[0] === "D") {
+            newY = y - instruction[1];
+            stepKnotsDown(y, newY);
+        }
     }
 }
 
+// Only works for Part 2. I would need to combine a past commit with Part 1 working
+// And refactor the all code. Also, all the above functions should be refactored as a class
+// To avoid passing tons of variables through chains of functions.
+
+let knots = makeKnots(10);
+let tailRoute = [[0,0]];
+findRoute(instructions);
 
 
 // See full tail - uncomment only with testInput, will crash otherwise due to grid size
 // drawGrid(tailRoute);
 
-// To get results for Part 1 or 2, then comment out all but first 2 knots in knots array, and change input
 console.log(`The tail has hit ${tailRoute.length} unique locations`);
