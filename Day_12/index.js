@@ -1,5 +1,5 @@
 const fs = require('fs');
-const raw = fs.readFileSync('testinput.txt').toString();
+const raw = fs.readFileSync('input.txt').toString();
 const splitRaw = raw.split("\n");
 
 // Node, Edge, and Graph classes, and BFS algorithm, from Intro to Computation and Programming Using Python by John Guttag, but translated into JS and modified for this problem
@@ -95,6 +95,12 @@ class Graph {
 
         if (!tmp.includes(destination)) {
             tmp.push(destination);
+        }
+    }
+
+    reset() {
+        for (let node of this.nodes) {
+            node.visited = false;
         }
     }
 
@@ -210,7 +216,7 @@ const BFS = (graph, start, end) => {
 
     while (pathQueue.length != 0) {
         let tmpPath = pathQueue.shift();
-        console.log('Current path:', printPath(tmpPath));
+        // console.log('Current path:', printPath(tmpPath)); // For debugging paths
 
         lastNode = tmpPath[tmpPath.length - 1];
 
@@ -231,6 +237,8 @@ const BFS = (graph, start, end) => {
             }
         }
     }
+
+    return 10000; // High number to send to back of results if good path not found
 }
 
 grid.findEdges();
@@ -241,6 +249,17 @@ const shortest = BFS(grid, startPoint, target);
 console.log("Part 1: The length of the shortest path is ", shortest.length - 1);
 
 // Part 2
-console.log(part2StartPoints);
+grid.reset();
+let part2Result = [];
+
+for (let point of part2StartPoints) {
+    const distance = BFS(grid, point, target).length - 1;
+    part2Result.push(distance);
+    grid.reset();
+}
+
+part2Result.sort((a, b) => a - b);
+
+console.log(`Part 2: The fewest steps from an 'a' location is ${part2Result[0]}`);
 
 
