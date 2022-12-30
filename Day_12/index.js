@@ -1,5 +1,5 @@
 const fs = require('fs');
-const raw = fs.readFileSync('input.txt').toString();
+const raw = fs.readFileSync('testinput.txt').toString();
 const splitRaw = raw.split("\n");
 
 // Node, Edge, and Graph classes, and BFS algorithm, from Intro to Computation and Programming Using Python by John Guttag, but translated into JS and modified for this problem
@@ -167,7 +167,8 @@ class Graph {
 
 const grid = new Graph();
 
-let startPoint;;
+let startPoint;
+let part2StartPoints = [];
 let target;
 
 for (let row = 0; row < splitRaw.length; row++) {
@@ -177,10 +178,14 @@ for (let row = 0; row < splitRaw.length; row++) {
         if (splitRaw[row][col] === "S") {
             node.val = 0;
             startPoint = node;
+            part2StartPoints.push(node);
         } else if (splitRaw[row][col] === "E") {
             node.val = 26;
             target = node;
         } else {
+            if (splitRaw[row][col] === "a") {
+                part2StartPoints.push(node);
+            }
             node.val = splitRaw[row][col].charCodeAt(0)-97;
         }
         grid.addNode(node);
@@ -231,7 +236,11 @@ const BFS = (graph, start, end) => {
 grid.findEdges();
 // grid.printEdges(); // For debugging only
 
+// Part 1
 const shortest = BFS(grid, startPoint, target);
 console.log("Part 1: The length of the shortest path is ", shortest.length - 1);
+
+// Part 2
+console.log(part2StartPoints);
 
 
