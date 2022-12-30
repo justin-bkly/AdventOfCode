@@ -2,17 +2,21 @@ const fs = require('fs');
 const raw = fs.readFileSync('input.txt').toString();
 const splitRaw = raw.split("\n");
 
-console.log(raw);
+// Node, Edge, and Graph classes, and BFS algorithm, from Intro to Computation and Programming Using Python by John Guttag, but translated into JS and modified for this problem
 
 class Node {
-    constructor(x, y, val, id, letter) {
+    constructor(x, y, val, letter) {
         this._name = `x:${x}-y:${y}`;
         this._x = x;
         this._y = y;
-        this._val = val;
-        this._id = id;
         this._letter = letter;
+        this._val = val;
         this._visited = false
+    }
+
+    // Letter only used for debugging in printPath()
+    get letter() {
+        return this._letter;
     }
 
     get visited() {
@@ -21,10 +25,6 @@ class Node {
 
     set visited(ifVisited) {
         this._visited = ifVisited;
-    }
-
-    get letter() {
-        return this._letter;
     }
 
     get name() {
@@ -45,10 +45,6 @@ class Node {
 
     get val() {
         return this._val;
-    }
-
-    get id() {
-        return this._id;
     }
 
     set val(val) {
@@ -93,20 +89,13 @@ class Graph {
             console.log(`Node ${node.name} not in graph!`)
         }
 
+        // Note to self: add the reverse of this to make an undirected graph
+        // Not needed for solution, just a reminder for future problems. 
         let tmp = this.edges.get(source);
 
         if (!tmp.includes(destination)) {
             tmp.push(destination);
         }
-
-        // Add reversed path as well. This makes this an undirected graph. Comment out to make
-        // a directed graph.
-        // let reversed = new Edge(destination, source);
-        // let tmpRev = this.edges.get(destination);
-
-        // if (!tmpRev.includes(source)) {
-        //     tmpRev.push(source);
-        // }
     }
 
     childrenOf(node) {
@@ -131,6 +120,7 @@ class Graph {
         }
     }
 
+    // Helper method to check to make sure edges being created correctly. Not needed for output.
     printEdges() {
         for (let [key, value] of this.edges) {
             console.log('For source', key.letter, key.id, key.name);
@@ -140,6 +130,7 @@ class Graph {
         }
     }
 
+    // After nodes created, this is run to find the edges between them.
     findEdges() {
         for (let n = 0; n < this.nodes.length; n++) {
             let node = this.nodes[n];
@@ -178,11 +169,10 @@ const grid = new Graph();
 
 let startPoint;;
 let target;
-let id = 0;
 
 for (let row = 0; row < splitRaw.length; row++) {
     for (let col = 0; col < splitRaw[row].length; col++) {
-        let node = new Node(col, row, 0, id, splitRaw[row][col]);
+        let node = new Node(col, row, 0, splitRaw[row][col]);
         
         if (splitRaw[row][col] === "S") {
             node.val = 0;
@@ -194,11 +184,10 @@ for (let row = 0; row < splitRaw.length; row++) {
             node.val = splitRaw[row][col].charCodeAt(0)-97;
         }
         grid.addNode(node);
-
-        id++;
     }
 }
 
+// Helper function for debugging the paths
 const printPath = (path) => {
     let result = '';
     for (let i = 0; i < path.length; i++) {
@@ -217,10 +206,17 @@ const BFS = (graph, start, end) => {
     while (pathQueue.length != 0) {
         let tmpPath = pathQueue.shift();
         console.log('Current path:', printPath(tmpPath));
+
         lastNode = tmpPath[tmpPath.length - 1];
 
-        if (lastNode == end) {
+        if (lastNode === end) {
             return tmpPath;
+        }
+
+        if (lastNode.visited) {
+            continue;
+        } else {
+            lastNode.visited = true;
         }
 
         for (let nextNode of graph.childrenOf(lastNode)) {
@@ -233,6 +229,9 @@ const BFS = (graph, start, end) => {
 }
 
 grid.findEdges();
-// grid.printEdges();
+// grid.printEdges(); // For debugging only
+
 const shortest = BFS(grid, startPoint, target);
-console.log("Shortest", shortest.length - 1);
+console.log("Part 1: The length of the shortest path is ", shortest.length - 1);
+
+
